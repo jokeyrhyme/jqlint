@@ -21,10 +21,9 @@ module.exports = function (grunt) {
 
     mochacli: {
       all: [
-        'test/**/*.js'
+        'tests/**/test.js'
       ],
       options: {
-        require: ['chai'],
         ui: 'tdd'
       }
     }
