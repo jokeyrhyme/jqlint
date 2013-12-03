@@ -1,1 +1,6 @@
+# IDE files
+/.idea/workspace.xml
+/.idea/dictionaries
+
+# 3rd-party dependencies
 node_modules
