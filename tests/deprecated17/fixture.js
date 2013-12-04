@@ -4,14 +4,21 @@
 (function () {
   'use strict';
 
-  function isOpenSource() {
-    return $.browser.webkit || jQuery.browser.mozilla;
-  }
-  isOpenSource();
+  var dfrd, sub$;
 
-  function hasBoxModel() {
-    return $.boxModel;
+  dfrd = new $.Deferred();
+  if (!dfrd.isRejected() && !dfrd.isResolved()) {
+    dfrd.resolve();
   }
-  hasBoxModel();
+
+  $('button').live('click', function () {
+    $('button').die('click');
+  });
+
+  sub$ = $.sub();
+
+  sub$($('button').selector).prop('disabled', true);
+
+  $();
 
 }());
