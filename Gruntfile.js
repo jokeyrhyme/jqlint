@@ -6,15 +6,25 @@ module.exports = function (grunt) {
   grunt.initConfig({
 
     jslint: {
-      all: {
+      main: {
         src: [
           '**/*.js',
           '**/*.json',
+          '!tests/**/*',
           '!**/node_modules/**/*'
         ],
         options: {
           errorsOnly: true,
           failOnError: true
+        }
+      },
+      tests: {
+        src: [
+          'tests/**/*.js'
+        ],
+        options: {
+          errorsOnly: true,
+          failOnError: false
         }
       }
     },
