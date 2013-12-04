@@ -1,4 +1,5 @@
 {
+  "name": "jqlint",
   "dependencies": {
     "esprima": "~1.0.4"
   },

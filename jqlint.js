@@ -21,7 +21,9 @@ options = {
 function traverse(object, visitor) {
   var key, child;
 
-  visitor.call(null, object);
+  if (object.type) {
+    visitor.call(null, object);
+  }
   for (key in object) {
     if (object.hasOwnProperty(key)) {
       child = object[key];
@@ -32,9 +34,27 @@ function traverse(object, visitor) {
   }
 }
 
+/**
+ * determine if a syntax node is for the jQuery constructor
+ * @param node
+ * @returns {boolean}
+ */
 function isConstructor(node) {
   if (node.type === 'Identifier' &&
       options.constructor.indexOf(node.name) !== -1) {
+    return true;
+  }
+  return false;
+}
+
+/**
+ * determine if a syntax node is for a call to the jQuery constructor
+ * @param node
+ * @returns {boolean}
+ */
+function isConstructed(node) {
+  if (node.type === 'CallExpression' &&
+      isConstructor(node.callee)) {
     return true;
   }
   return false;
@@ -59,8 +79,24 @@ function checkDeprecated13(node) {
   }
 }
 
+function checkDeprecated17(node) {
+  if (node.type === 'MemberExpression') {
+    if (isConstructed(node.object) && node.property.type === 'Identifier' &&
+        node.property.name === 'selector') {
+      report.errors = report.errors || [];
+      report.errors.push({
+        line: node.property.loc.start.line,
+        character: node.property.loc.start.column + 1,
+        reason: 'DEPRECATED',
+        evidence: '.' + node.property.name
+      });
+    }
+  }
+}
+
 function validate(node) {
   checkDeprecated13(node);
+  checkDeprecated17(node);
 }
 
 // exports
@@ -68,6 +104,11 @@ function validate(node) {
 module.exports = function (code) {
 
   var syntax;
+
+//  console.log(JSON.stringify(esprima.parse(code, {
+//    comment: true,
+//    tolerant: true
+//  }), null, 2));
 
   syntax = esprima.parse(code, {
     comment: true,
@@ -80,7 +121,7 @@ module.exports = function (code) {
 
   traverse(syntax, validate);
 
-  //console.log(report);
+//  console.log(JSON.stringify(report, null, 2));
 
   return report;
 };

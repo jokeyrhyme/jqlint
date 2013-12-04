@@ -41,6 +41,22 @@ suite('deprecated', function () {
     });
   });
 
-  test('');
+  test('.selector', function () {
+    var error;
+
+    assert.isObject(report);
+    assert.isArray(report.errors);
+    assert(report.errors.length >= 1);
+
+    error = report.errors[0];
+    assert.isObject(error);
+    assert.equal(error.line, 20);
+    assert.equal(error.character, 20);
+    assert.equal(error.reason, 'DEPRECATED');
+    assert.equal(error.evidence, '.selector');
+
+    report.errors.splice(0, 1);
+  });
+
 
 });
