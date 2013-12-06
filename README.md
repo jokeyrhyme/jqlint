@@ -34,4 +34,4 @@ jqlint currently detects:
 
 - use of features deprecated in jQuery 1.3: `jQuery.browser`, `jQuery.boxModel`
 
-- use of features deprecated in jQuery 1.7: `.selector`
+- use of features deprecated in jQuery 1.7: `.selector`, `jQuery.sub()`

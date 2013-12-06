@@ -92,6 +92,20 @@ function checkDeprecated17(node) {
       });
     }
   }
+  if (node.type === 'CallExpression') {
+    if (node.callee.type === 'MemberExpression' &&
+        isConstructor(node.callee.object) &&
+        node.callee.property.type === 'Identifier' &&
+        node.callee.property.name === 'sub') {
+      report.errors = report.errors || [];
+      report.errors.push({
+        line: node.callee.loc.start.line,
+        character: node.callee.loc.start.column + 1,
+        reason: 'DEPRECATED',
+        evidence: node.callee.object.name + '.' + node.callee.property.name
+      });
+    }
+  }
 }
 
 function validate(node) {
