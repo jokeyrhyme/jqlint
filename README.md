@@ -44,3 +44,5 @@ jqlint currently detects:
     `.unload()`, `.size()`, `.toggle()`
 
 - use of features deprecated in jQuery 1.8: `.context`
+
+- use of features designed only for jQuery-internal use: `jQuery.support`

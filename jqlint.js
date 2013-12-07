@@ -141,17 +141,33 @@ function checkInstanceMethod(node) {
   }
 }
 
-function checkDeprecated13(node) {
+function checkConstructorProperty(node) {
+  var deprecated, internalOnly;
+  deprecated = [
+    // deprecated by jQuery 1.3
+    'browser', 'boxModel'
+  ];
+  internalOnly = [
+    'support'
+  ];
   if (node.type === 'MemberExpression') {
     if (isConstructor(node.object)) {
       if (node.property.type === 'Identifier') {
-        if (node.property.name === 'browser' ||
-            node.property.name === 'boxModel') {
+        if (deprecated.indexOf(node.property.name) !== -1) {
           report.errors = report.errors || [];
           report.errors.push({
             line: node.object.loc.start.line,
             character: node.object.loc.start.column + 1,
             reason: 'DEPRECATED',
+            evidence: node.object.name + '.' + node.property.name
+          });
+        }
+        if (internalOnly.indexOf(node.property.name) !== -1) {
+          report.errors = report.errors || [];
+          report.errors.push({
+            line: node.object.loc.start.line,
+            character: node.object.loc.start.column + 1,
+            reason: 'INTERNALONLY',
             evidence: node.object.name + '.' + node.property.name
           });
         }
@@ -178,7 +194,7 @@ function checkDeprecated17(node) {
 }
 
 function validate(node) {
-  checkDeprecated13(node);
+  checkConstructorProperty(node);
   checkDeprecated17(node);
   checkInstanceMethod(node);
   checkDeprecatedInstanceProperty(node);
