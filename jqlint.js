@@ -16,11 +16,13 @@ constants = require('./lib/constants');
 
 // this module
 
-var options, report;
+var options, report, instanceVarsRegExp;
 
 options = {
   constructor: ['jQuery', '$']
 };
+
+instanceVarsRegExp = /^\w*\$$/;
 
 // https://github.com/ariya/esprima/blob/master/examples/detectnestedternary.js
 // Executes visitor on the object and its children (recursively).
@@ -59,6 +61,10 @@ function isConstructor(node) {
  * @returns {boolean}
  */
 function isInstance(node) {
+  if (node.type === 'Identifier' &&
+      instanceVarsRegExp.test(node.name)) {
+    return true;
+  }
   if (node.type === 'CallExpression') {
     if (isConstructor(node.callee)) {
       return true;

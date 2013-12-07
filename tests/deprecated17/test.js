@@ -50,8 +50,8 @@ suite('deprecated', function () {
 
     error = report.errors[0];
     assert.isObject(error);
-    assert.equal(error.line, 14);
-    assert.equal(error.character, 15);
+    assert.equal(error.line, 16);
+    assert.equal(error.character, 11);
     assert.equal(error.reason, 'DEPRECATED');
     assert.equal(error.evidence, '.live()');
 
@@ -67,8 +67,8 @@ suite('deprecated', function () {
 
     error = report.errors[0];
     assert.isObject(error);
-    assert.equal(error.line, 15);
-    assert.equal(error.character, 17);
+    assert.equal(error.line, 17);
+    assert.equal(error.character, 13);
     assert.equal(error.reason, 'DEPRECATED');
     assert.equal(error.evidence, '.die()');
 
@@ -84,7 +84,7 @@ suite('deprecated', function () {
 
     error = report.errors[0];
     assert.isObject(error);
-    assert.equal(error.line, 18);
+    assert.equal(error.line, 20);
     assert.equal(error.character, 9);
     assert.equal(error.reason, 'DEPRECATED');
     assert.equal(error.evidence, '$.sub()');
@@ -101,8 +101,8 @@ suite('deprecated', function () {
 
     error = report.errors[0];
     assert.isObject(error);
-    assert.equal(error.line, 20);
-    assert.equal(error.character, 19);
+    assert.equal(error.line, 22);
+    assert.equal(error.character, 15);
     assert.equal(error.reason, 'DEPRECATED');
     assert.equal(error.evidence, '.selector');
 

@@ -22,11 +22,20 @@ report = jqlint(code);
 // report.errors will be an Array of errors found, just like the JSLint report
 ```
 
+## Assumptions
+
+These will hopefully be reduced over time as jqlint gains sophistication.
+
+- jQuery is available in any scope as `jQuery` or `$`
+
+- any identifier (e.g. variable or property name) that ends in `$` is a cached
+    jQuery selector e.g. `button$`
+
 ## Options
 
 None yet, but they are on the way.
 
-## Errors
+## Detected Errors
 
 This list will continue to grow.
 
