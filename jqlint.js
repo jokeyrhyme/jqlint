@@ -97,26 +97,44 @@ function checkDeprecatedInstanceProperty(node) {
   }
 }
 
-function checkDeprecatedInstanceMethod(node) {
-  var deprecated;
+function checkInstanceMethod(node) {
+  var deprecated, superseded;
   deprecated = [
     // deprecated by jQuery 1.7
     'die', 'live',
     // deprecated by jQuery 1.8
     'andSelf', 'error', 'load', 'unload', 'size', 'toggle'
   ];
+  superseded = [
+    // superseded in jQuery 1.7
+    'bind', 'unbind', 'delegate', 'undelegate'
+  ];
   if (node.type === 'CallExpression') {
     if (node.callee.type === 'MemberExpression') {
       if (isInstance(node.callee.object)) {
-        if (node.callee.property.type === 'Identifier' &&
-            deprecated.indexOf(node.callee.property.name) !== -1) {
-          report.errors = report.errors || [];
-          report.errors.push({
-            line: node.callee.property.loc.start.line,
-            character: node.callee.property.loc.start.column + 1,
-            reason: 'DEPRECATED',
-            evidence: '.' + node.callee.property.name + '()'
-          });
+        if (node.callee.property.type === 'Identifier') {
+          if (deprecated.indexOf(node.callee.property.name) !== -1) {
+            report.errors = report.errors || [];
+            report.errors.push(
+              {
+                line: node.callee.property.loc.start.line,
+                character: node.callee.property.loc.start.column + 1,
+                reason: 'DEPRECATED',
+                evidence: '.' + node.callee.property.name + '()'
+              }
+            );
+          }
+          if (superseded.indexOf(node.callee.property.name) !== -1) {
+            report.errors = report.errors || [];
+            report.errors.push(
+              {
+                line: node.callee.property.loc.start.line,
+                character: node.callee.property.loc.start.column + 1,
+                reason: 'SUPERSEDED',
+                evidence: '.' + node.callee.property.name + '()'
+              }
+            );
+          }
         }
       }
     }
@@ -162,7 +180,7 @@ function checkDeprecated17(node) {
 function validate(node) {
   checkDeprecated13(node);
   checkDeprecated17(node);
-  checkDeprecatedInstanceMethod(node);
+  checkInstanceMethod(node);
   checkDeprecatedInstanceProperty(node);
 }
 
