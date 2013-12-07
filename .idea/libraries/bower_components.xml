@@ -1,0 +1,9 @@
+<component name="libraryTable">
+  <library name="bower_components" type="javaScript">
+    <CLASSES />
+    <JAVADOC />
+    <SOURCES>
+      <root url="file://$PROJECT_DIR$/bower_components" />
+    </SOURCES>
+  </library>
+</component>
