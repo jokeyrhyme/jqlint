@@ -36,3 +36,6 @@ jqlint currently detects:
 
 - use of features deprecated in jQuery 1.7: `.die()`, `.live()`, `.selector`,
     `jQuery.sub()`
+
+- use of features deprecated in jQuery 1.8: `.andSelf()`, `.error()`, `.load()`,
+    `.unload()`, `.size()`, `.toggle()`

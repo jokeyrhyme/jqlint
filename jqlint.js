@@ -79,7 +79,9 @@ function checkDeprecatedInstanceMethod(node) {
   var deprecated;
   deprecated = [
     // deprecated by jQuery 1.7
-    'die', 'live'
+    'die', 'live',
+    // deprecated by jQuery 1.8
+    'andSelf', 'error', 'load', 'unload', 'size', 'toggle'
   ];
   if (node.type === 'CallExpression') {
     if (node.callee.type === 'MemberExpression') {
@@ -180,7 +182,7 @@ module.exports = function (code) {
 
   traverse(syntax, validate);
 
-  console.log(JSON.stringify(report, null, 2));
+//  console.log(JSON.stringify(report, null, 2));
 
   return report;
 };
