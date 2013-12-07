@@ -29,9 +29,21 @@ module.exports = function (grunt) {
       }
     },
 
+    mocha: {
+      all: {
+        src: [
+          'tests/browser/**/index.html'
+        ],
+        options: {
+          run: true
+        }
+      }
+    },
+
     mochacli: {
       all: [
-        'tests/**/test.js'
+        'tests/**/test.js',
+        '!tests/browser/**/*'
       ],
       options: {
         ui: 'tdd'
@@ -41,9 +53,10 @@ module.exports = function (grunt) {
   });
 
   grunt.loadNpmTasks('grunt-jslint');
+  grunt.loadNpmTasks('grunt-mocha');
   grunt.loadNpmTasks('grunt-mocha-cli');
 
-  grunt.registerTask('test', ['jslint', 'mochacli']);
+  grunt.registerTask('test', ['jslint', 'mocha', 'mochacli']);
 
   grunt.registerTask('default', ['test']);
 

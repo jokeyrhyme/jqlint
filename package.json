@@ -7,6 +7,7 @@
     "chai": "~1.8",
     "grunt": "~0.4",
     "grunt-jslint": "~1.1",
+    "grunt-mocha": "~0.4",
     "grunt-mocha-cli": "~1.3"
   }
 }

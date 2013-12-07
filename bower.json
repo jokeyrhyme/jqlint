@@ -1,0 +1,9 @@
+{
+  "name": "jqlint",
+  "dependencies": {},
+  "devDependencies": {
+    "chai": "~1.8",
+    "jquery": "~2.0",
+    "mocha": "~1.15"
+  }
+}

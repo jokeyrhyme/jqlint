@@ -3,4 +3,5 @@
 /.idea/dictionaries
 
 # 3rd-party dependencies
+bower_components
 node_modules
