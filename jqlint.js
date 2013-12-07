@@ -75,6 +75,28 @@ function isInstance(node) {
   return false;
 }
 
+function checkDeprecatedInstanceProperty(node) {
+  var deprecated;
+  deprecated = [
+    // deprecated by jQuery 1.7
+    'selector',
+    // deprecated by jQuery 1.10
+    'context'
+  ];
+  if (node.type === 'MemberExpression') {
+    if (isInstance(node.object) && node.property.type === 'Identifier' &&
+        deprecated.indexOf(node.property.name) !== -1) {
+      report.errors = report.errors || [];
+      report.errors.push({
+        line: node.property.loc.start.line,
+        character: node.property.loc.start.column + 1,
+        reason: 'DEPRECATED',
+        evidence: '.' + node.property.name
+      });
+    }
+  }
+}
+
 function checkDeprecatedInstanceMethod(node) {
   var deprecated;
   deprecated = [
@@ -121,18 +143,6 @@ function checkDeprecated13(node) {
 }
 
 function checkDeprecated17(node) {
-  if (node.type === 'MemberExpression') {
-    if (isInstance(node.object) && node.property.type === 'Identifier' &&
-        node.property.name === 'selector') {
-      report.errors = report.errors || [];
-      report.errors.push({
-        line: node.property.loc.start.line,
-        character: node.property.loc.start.column + 1,
-        reason: 'DEPRECATED',
-        evidence: '.' + node.property.name
-      });
-    }
-  }
   if (node.type === 'CallExpression') {
     if (node.callee.type === 'MemberExpression' &&
         isConstructor(node.callee.object) &&
@@ -153,6 +163,7 @@ function validate(node) {
   checkDeprecated13(node);
   checkDeprecated17(node);
   checkDeprecatedInstanceMethod(node);
+  checkDeprecatedInstanceProperty(node);
 }
 
 // exports

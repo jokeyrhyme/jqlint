@@ -39,3 +39,5 @@ jqlint currently detects:
 
 - use of features deprecated in jQuery 1.8: `.andSelf()`, `.error()`, `.load()`,
     `.unload()`, `.size()`, `.toggle()`
+
+- use of features deprecated in jQuery 1.8: `.context`
