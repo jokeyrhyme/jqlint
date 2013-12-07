@@ -4,7 +4,7 @@
 (function () {
   'use strict';
 
-  var dfrd, sub$;
+  var dfrd, sub;
 
   dfrd = new $.Deferred();
   if (!dfrd.isRejected() && !dfrd.isResolved()) {
@@ -15,10 +15,8 @@
     $('button').die('click');
   });
 
-  sub$ = $.sub();
+  sub = $.sub();
 
-  sub$($('button').selector).prop('disabled', true);
-
-  $();
+  sub($('button').selector).prop('disabled', true);
 
 }());
