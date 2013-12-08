@@ -1,5 +1,7 @@
 {
   "name": "jqlint",
+  "description": "static  analysis of jQuery usage",
+  "version": "1.0.0",
   "dependencies": {
     "esprima": "~1.0.4"
   },
@@ -9,5 +11,17 @@
     "grunt-jslint": "~1.1",
     "grunt-mocha": "~0.4",
     "grunt-mocha-cli": "~1.3"
-  }
+  },
+  "license": "BSD",
+  "keywords": ["jquery", "lint"],
+  "homepage": "https://github.com/jokeyrhyme/jqlint",
+  "author": {
+    "name": "Ron Waldon",
+    "url": "http://jokeyrhy.me/"
+  },
+  "files": [
+    "lib/constants.js",
+    "jqlint.js"
+  ],
+  "main": "jqlint.js"
 }
