@@ -16,13 +16,16 @@ constants = require('./lib/constants');
 
 // this module
 
-var options, report, instanceVarsRegExp;
+var options, defaults, currentOptions, report, instanceVarsRegExp;
 
-options = {
-  constructor: ['jQuery', '$']
+defaults = {
+  angular: false
 };
 
-instanceVarsRegExp = /^\w*\$$/;
+instanceVarsRegExp = {
+  angular: /^\w*\$$/,
+  noangular: /^\$\w*|\w*\$$/
+};
 
 // https://github.com/ariya/esprima/blob/master/examples/detectnestedternary.js
 // Executes visitor on the object and its children (recursively).
@@ -48,8 +51,7 @@ function traverse(object, visitor) {
  * @returns {boolean}
  */
 function isConstructor(node) {
-  if (node.type === 'Identifier' &&
-      options.constructor.indexOf(node.name) !== -1) {
+  if (node.type === 'Identifier' && ['jQuery', '$'].indexOf(node.name) !== -1) {
     return true;
   }
   return false;
@@ -61,9 +63,16 @@ function isConstructor(node) {
  * @returns {boolean}
  */
 function isInstance(node) {
-  if (node.type === 'Identifier' &&
-      instanceVarsRegExp.test(node.name)) {
-    return true;
+  if (node.type === 'Identifier') {
+    if (currentOptions.angular) {
+      if (instanceVarsRegExp.angular.test(node.name)) {
+        return true;
+      }
+    } else {
+      if (instanceVarsRegExp.noangular.test(node.name)) {
+        return true;
+      }
+    }
   }
   if (node.type === 'CallExpression') {
     if (isConstructor(node.callee)) {
@@ -200,10 +209,38 @@ function checkDeprecated17(node) {
 }
 
 function validate(node) {
+  var leadingOptions;
+  leadingOptions = options.filter(function (option) {
+    return option.line < node.loc.start.line;
+  });
+  currentOptions = leadingOptions[leadingOptions.length - 1];
   checkConstructorProperty(node);
   checkDeprecated17(node);
   checkInstanceMethod(node);
   checkDeprecatedInstanceProperty(node);
+}
+
+function parseComments(found) {
+  var f, fLength, comment, value, pairs, p, pLength, pair, option;
+  fLength = found.length;
+  for (f = 0; f < fLength; f += 1) {
+    comment = found[f];
+    if (comment.type === 'Block' && comment.value.indexOf('jqlint') === 0) {
+      value = comment.value.replace(/^jqlint\s+/, '');
+      pairs = value.split(',');
+
+      pLength = pairs.length;
+      option = JSON.parse(JSON.stringify(defaults));
+      option.line = comment.loc.start.line;
+      for (p = 0; p < pLength; p += 1) {
+        pair = pairs[p].split(':');
+        pair[0] = pair[0].trim();
+        pair[1] = pair[1].trim();
+        option[pair[0]] = pair[1] === 'true' ? true : false;
+      }
+      options.push(option);
+    }
+  }
 }
 
 // exports
@@ -217,19 +254,27 @@ module.exports = function (code) {
 
   var syntax;
 
+  options = [];
+  options.push({
+    line: -1,
+    angular: defaults.angular
+  });
+
 //  console.log(JSON.stringify(esprima.parse(code, {
 //    comment: true,
+//    loc: true,
 //    tolerant: true
 //  }), null, 2));
 
   syntax = esprima.parse(code, {
     comment: true,
     loc: true,
-    tolerant: true,
-    range: true
+    tolerant: true
   });
 
   report = {};
+
+  parseComments(syntax.comments);
 
   traverse(syntax, validate);
 

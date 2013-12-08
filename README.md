@@ -28,12 +28,18 @@ These will hopefully be reduced over time as jqlint gains sophistication.
 
 - jQuery is available in any scope as `jQuery` or `$`
 
-- any identifier (e.g. variable or property name) that ends in `$` is a cached
-    jQuery selector e.g. `button$`
+- any identifier (e.g. variable or property name) that begins or ends with `$`
+    is a cached jQuery selector e.g. `$button`, `input$`, etc
 
 ## Options
 
-None yet, but they are on the way.
+The only way to set options currently is to use block comments in your code,
+like JSLint. For example: `/*jslint angular:true*/`
+
+### angular (default: false)
+
+- if true: identifiers beginning with `$` will not be treated like cached jQuery
+    selectors (e.g. `$scope`)
 
 ## Detected Errors
 
