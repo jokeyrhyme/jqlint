@@ -1,9 +1,22 @@
 {
   "name": "jqlint",
+  "description": "static  analysis of jQuery usage",
+  "version": "1.0.0",
   "dependencies": {},
   "devDependencies": {
     "chai": "~1.8",
     "jquery": "~2.0",
     "mocha": "~1.15"
-  }
-}
+  },
+  "license": "BSD",
+  "keywords": ["jquery", "lint"],
+  "homepage": "https://github.com/jokeyrhyme/jqlint",
+  "author": {
+    "name": "Ron Waldon",
+    "url": "http://jokeyrhy.me/"
+  },
+  "files": [
+    "lib/constants.js",
+    "jqlint.js"
+  ],
+  "main": "jqlint.js"}
