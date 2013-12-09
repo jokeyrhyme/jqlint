@@ -275,7 +275,6 @@ module.exports = function (code) {
       tolerant: true
     });
   } catch (e) {
-    console.error(e);
     report.errors.push({
       line: e.lineNumber,
       character: e.column,
