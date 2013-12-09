@@ -266,17 +266,27 @@ module.exports = function (code) {
 //    tolerant: true
 //  }), null, 2));
 
-  syntax = esprima.parse(code, {
-    comment: true,
-    loc: true,
-    tolerant: true
-  });
-
   report = {};
 
-  parseComments(syntax.comments);
+  try {
+    syntax = esprima.parse(code, {
+      comment: true,
+      loc: true,
+      tolerant: true
+    });
+  } catch (e) {
+    report.errors.push({
+      line: e.lineNumber,
+      character: e.column,
+      reason: 'PARSER',
+      evidence: e.message
+    });
+  }
 
-  traverse(syntax, validate);
+  if (syntax) {
+    parseComments(syntax.comments);
+    traverse(syntax, validate);
+  }
 
 //  console.log(JSON.stringify(report, null, 2));
 

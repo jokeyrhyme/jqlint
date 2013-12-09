@@ -1,7 +1,7 @@
 {
   "name": "jqlint",
   "description": "static  analysis of jQuery usage",
-  "version": "1.0.0",
+  "version": "1.0.1",
   "dependencies": {
     "esprima": "~1.0.4"
   },
