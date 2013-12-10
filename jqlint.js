@@ -101,7 +101,6 @@ function checkDeprecatedInstanceProperty(node) {
   if (node.type === 'MemberExpression') {
     if (isInstance(node.object) && node.property.type === 'Identifier' &&
         deprecated.indexOf(node.property.name) !== -1) {
-      report.errors = report.errors || [];
       report.errors.push({
         line: node.property.loc.start.line,
         character: node.property.loc.start.column + 1,
@@ -129,7 +128,6 @@ function checkInstanceMethod(node) {
       if (isInstance(node.callee.object)) {
         if (node.callee.property.type === 'Identifier') {
           if (deprecated.indexOf(node.callee.property.name) !== -1) {
-            report.errors = report.errors || [];
             report.errors.push(
               {
                 line: node.callee.property.loc.start.line,
@@ -140,7 +138,6 @@ function checkInstanceMethod(node) {
             );
           }
           if (superseded.indexOf(node.callee.property.name) !== -1) {
-            report.errors = report.errors || [];
             report.errors.push(
               {
                 line: node.callee.property.loc.start.line,
@@ -169,7 +166,6 @@ function checkConstructorProperty(node) {
     if (isConstructor(node.object)) {
       if (node.property.type === 'Identifier') {
         if (deprecated.indexOf(node.property.name) !== -1) {
-          report.errors = report.errors || [];
           report.errors.push({
             line: node.object.loc.start.line,
             character: node.object.loc.start.column + 1,
@@ -178,7 +174,6 @@ function checkConstructorProperty(node) {
           });
         }
         if (internalOnly.indexOf(node.property.name) !== -1) {
-          report.errors = report.errors || [];
           report.errors.push({
             line: node.object.loc.start.line,
             character: node.object.loc.start.column + 1,
@@ -197,7 +192,6 @@ function checkDeprecated17(node) {
         isConstructor(node.callee.object) &&
         node.callee.property.type === 'Identifier' &&
         node.callee.property.name === 'sub') {
-      report.errors = report.errors || [];
       report.errors.push({
         line: node.callee.loc.start.line,
         character: node.callee.loc.start.column + 1,
@@ -266,7 +260,9 @@ module.exports = function (code) {
 //    tolerant: true
 //  }), null, 2));
 
-  report = {};
+  report = {
+    errors: [];
+  };
 
   try {
     syntax = esprima.parse(code, {
