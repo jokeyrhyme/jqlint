@@ -261,7 +261,7 @@ module.exports = function (code) {
 //  }), null, 2));
 
   report = {
-    errors: [];
+    errors: []
   };
 
   try {
