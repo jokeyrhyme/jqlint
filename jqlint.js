@@ -28,24 +28,6 @@ instanceVarsRegExp = {
   noangular: /^\$\w*|\w*\$$/
 };
 
-// https://github.com/ariya/esprima/blob/master/examples/detectnestedternary.js
-// Executes visitor on the object and its children (recursively).
-function traverse(object, visitor) {
-  var key, child;
-
-  if (object.type) {
-    visitor.call(null, object);
-  }
-  for (key in object) {
-    if (object.hasOwnProperty(key)) {
-      child = object[key];
-      if (typeof child === 'object' && child !== null) {
-        traverse(child, visitor);
-      }
-    }
-  }
-}
-
 /**
  * determine if a syntax node is for the jQuery constructor
  * @param node
