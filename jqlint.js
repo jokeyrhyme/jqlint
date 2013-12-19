@@ -41,6 +41,22 @@ function isConstructor(node) {
 }
 
 /**
+ * check if node is a call to non-selector method e.g. `$.isArray()`
+ * @param node
+ * @returns {boolean}
+ */
+function isStaticMethodCall(node) {
+  if (node.type === 'CallExpression') {
+    if (node.callee.type === 'MemberExpression' &&
+        isConstructor(node.callee.object) &&
+        node.callee.property.type === 'Identifier') {
+      return true;
+    }
+  }
+  return false;
+}
+
+/**
  * determine if a syntax node a jQuery-wrapped element list
  * @param node
  * @returns {boolean}
@@ -170,18 +186,25 @@ function checkConstructorProperty(node) {
 }
 
 function checkDeprecated17(node) {
-  if (node.type === 'CallExpression') {
-    if (node.callee.type === 'MemberExpression' &&
-        isConstructor(node.callee.object) &&
-        node.callee.property.type === 'Identifier' &&
-        node.callee.property.name === 'sub') {
-      report.errors.push({
-        line: node.callee.loc.start.line,
-        character: node.callee.loc.start.column + 1,
-        reason: 'DEPRECATED',
-        evidence: node.callee.object.name + '.' + node.callee.property.name + '()'
-      });
-    }
+  if (isStaticMethodCall(node) && node.callee.property.name === 'sub') {
+    report.errors.push({
+      line: node.callee.loc.start.line,
+      character: node.callee.loc.start.column + 1,
+      reason: 'DEPRECATED',
+      evidence: node.callee.object.name + '.' + node.callee.property.name + '()'
+    });
+  }
+}
+
+function checkDeferredMissingNew(node) {
+  if (isStaticMethodCall(node) && node.callee.property.name === 'Deferred' &&
+      node['arguments'].length === 0) {
+    report.errors.push({
+      line: node.callee.loc.start.line,
+      character: node.callee.loc.start.column + 1,
+      reason: 'CONSTRUCTOR_MISSING_NEW',
+      evidence: node.callee.object.name + '.' + node.callee.property.name + '()'
+    });
   }
 }
 
@@ -195,6 +218,7 @@ function validate(node) {
   checkDeprecated17(node);
   checkInstanceMethod(node);
   checkDeprecatedInstanceProperty(node);
+  checkDeferredMissingNew(node);
 }
 
 function parseComments(found) {
