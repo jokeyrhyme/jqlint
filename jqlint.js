@@ -4,9 +4,10 @@
 
 // 3rd-party modules
 
-var esprima;
+var esprima, estraverse;
 
 esprima = require('esprima');
+estraverse = require('estraverse');
 
 // custom modules
 
@@ -246,7 +247,7 @@ function parseComments(found) {
  */
 module.exports = function (code) {
 
-  var syntax;
+  var ast;
 
   options = [];
   options.push({
@@ -265,7 +266,7 @@ module.exports = function (code) {
   };
 
   try {
-    syntax = esprima.parse(code, {
+    ast = esprima.parse(code, {
       comment: true,
       loc: true,
       tolerant: true
@@ -279,9 +280,11 @@ module.exports = function (code) {
     });
   }
 
-  if (syntax) {
-    parseComments(syntax.comments);
-    traverse(syntax, validate);
+  if (ast) {
+    parseComments(ast.comments);
+    estraverse.traverse(ast, {
+      enter: validate
+    });
   }
 
 //  console.log(JSON.stringify(report, null, 2));
