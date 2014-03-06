@@ -4,9 +4,10 @@
 
 // 3rd-party modules
 
-var esprima;
+var esprima, estraverse;
 
 esprima = require('esprima');
+estraverse = require('estraverse');
 
 // custom modules
 
@@ -27,24 +28,6 @@ instanceVarsRegExp = {
   noangular: /^\$\w*|\w*\$$/
 };
 
-// https://github.com/ariya/esprima/blob/master/examples/detectnestedternary.js
-// Executes visitor on the object and its children (recursively).
-function traverse(object, visitor) {
-  var key, child;
-
-  if (object.type) {
-    visitor.call(null, object);
-  }
-  for (key in object) {
-    if (object.hasOwnProperty(key)) {
-      child = object[key];
-      if (typeof child === 'object' && child !== null) {
-        traverse(child, visitor);
-      }
-    }
-  }
-}
-
 /**
  * determine if a syntax node is for the jQuery constructor
  * @param node
@@ -53,6 +36,22 @@ function traverse(object, visitor) {
 function isConstructor(node) {
   if (node.type === 'Identifier' && ['jQuery', '$'].indexOf(node.name) !== -1) {
     return true;
+  }
+  return false;
+}
+
+/**
+ * check if node is a call to non-selector method e.g. `$.isArray()`
+ * @param node
+ * @returns {boolean}
+ */
+function isStaticMethodCall(node) {
+  if (node.type === 'CallExpression') {
+    if (node.callee.type === 'MemberExpression' &&
+        isConstructor(node.callee.object) &&
+        node.callee.property.type === 'Identifier') {
+      return true;
+    }
   }
   return false;
 }
@@ -101,7 +100,6 @@ function checkDeprecatedInstanceProperty(node) {
   if (node.type === 'MemberExpression') {
     if (isInstance(node.object) && node.property.type === 'Identifier' &&
         deprecated.indexOf(node.property.name) !== -1) {
-      report.errors = report.errors || [];
       report.errors.push({
         line: node.property.loc.start.line,
         character: node.property.loc.start.column + 1,
@@ -129,7 +127,6 @@ function checkInstanceMethod(node) {
       if (isInstance(node.callee.object)) {
         if (node.callee.property.type === 'Identifier') {
           if (deprecated.indexOf(node.callee.property.name) !== -1) {
-            report.errors = report.errors || [];
             report.errors.push(
               {
                 line: node.callee.property.loc.start.line,
@@ -140,7 +137,6 @@ function checkInstanceMethod(node) {
             );
           }
           if (superseded.indexOf(node.callee.property.name) !== -1) {
-            report.errors = report.errors || [];
             report.errors.push(
               {
                 line: node.callee.property.loc.start.line,
@@ -169,7 +165,6 @@ function checkConstructorProperty(node) {
     if (isConstructor(node.object)) {
       if (node.property.type === 'Identifier') {
         if (deprecated.indexOf(node.property.name) !== -1) {
-          report.errors = report.errors || [];
           report.errors.push({
             line: node.object.loc.start.line,
             character: node.object.loc.start.column + 1,
@@ -178,7 +173,6 @@ function checkConstructorProperty(node) {
           });
         }
         if (internalOnly.indexOf(node.property.name) !== -1) {
-          report.errors = report.errors || [];
           report.errors.push({
             line: node.object.loc.start.line,
             character: node.object.loc.start.column + 1,
@@ -192,19 +186,25 @@ function checkConstructorProperty(node) {
 }
 
 function checkDeprecated17(node) {
-  if (node.type === 'CallExpression') {
-    if (node.callee.type === 'MemberExpression' &&
-        isConstructor(node.callee.object) &&
-        node.callee.property.type === 'Identifier' &&
-        node.callee.property.name === 'sub') {
-      report.errors = report.errors || [];
-      report.errors.push({
-        line: node.callee.loc.start.line,
-        character: node.callee.loc.start.column + 1,
-        reason: 'DEPRECATED',
-        evidence: node.callee.object.name + '.' + node.callee.property.name + '()'
-      });
-    }
+  if (isStaticMethodCall(node) && node.callee.property.name === 'sub') {
+    report.errors.push({
+      line: node.callee.loc.start.line,
+      character: node.callee.loc.start.column + 1,
+      reason: 'DEPRECATED',
+      evidence: node.callee.object.name + '.' + node.callee.property.name + '()'
+    });
+  }
+}
+
+function checkDeferredMissingNew(node) {
+  if (isStaticMethodCall(node) && node.callee.property.name === 'Deferred' &&
+      node['arguments'].length === 0) {
+    report.errors.push({
+      line: node.callee.loc.start.line,
+      character: node.callee.loc.start.column + 1,
+      reason: 'CONSTRUCTOR_MISSING_NEW',
+      evidence: node.callee.object.name + '.' + node.callee.property.name + '()'
+    });
   }
 }
 
@@ -218,6 +218,7 @@ function validate(node) {
   checkDeprecated17(node);
   checkInstanceMethod(node);
   checkDeprecatedInstanceProperty(node);
+  checkDeferredMissingNew(node);
 }
 
 function parseComments(found) {
@@ -252,7 +253,7 @@ function parseComments(found) {
  */
 module.exports = function (code) {
 
-  var syntax;
+  var ast;
 
   options = [];
   options.push({
@@ -266,10 +267,12 @@ module.exports = function (code) {
 //    tolerant: true
 //  }), null, 2));
 
-  report = {};
+  report = {
+    errors: []
+  };
 
   try {
-    syntax = esprima.parse(code, {
+    ast = esprima.parse(code, {
       comment: true,
       loc: true,
       tolerant: true
@@ -283,9 +286,11 @@ module.exports = function (code) {
     });
   }
 
-  if (syntax) {
-    parseComments(syntax.comments);
-    traverse(syntax, validate);
+  if (ast) {
+    parseComments(ast.comments);
+    estraverse.traverse(ast, {
+      enter: validate
+    });
   }
 
 //  console.log(JSON.stringify(report, null, 2));
