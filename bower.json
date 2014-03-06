@@ -4,9 +4,9 @@
   "version": "1.0.1",
   "dependencies": {},
   "devDependencies": {
-    "chai": "~1.8",
-    "jquery": "~2.0",
-    "mocha": "~1.15"
+    "chai": "~1.9",
+    "jquery": "~2.1",
+    "mocha": "~1.17"
   },
   "license": "BSD",
   "keywords": ["jquery", "lint"],
